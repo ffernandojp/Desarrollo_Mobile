@@ -1,11 +1,10 @@
-// import { StatusBar } from 'expo-status-bar';
+OAOOOBimport { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import HomeScreen from './screens/HomeScreen';
 import QRScannerScreen from './screens/QRScannerScreen';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import PaymentScreen from './screens/PaymentScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -17,7 +16,6 @@ export default function App() {
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="QRScanner" component={QRScannerScreen} />
-      <Stack.Screen name="Payment" component={PaymentScreen} />
     </Stack.Navigator>
   </NavigationContainer>
     // <View style={styles.container}>
