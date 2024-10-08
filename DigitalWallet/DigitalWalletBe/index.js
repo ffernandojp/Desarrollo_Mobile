@@ -6,6 +6,9 @@ const port = 3001;
 
 const QRCode = require('qrcode')
 
+const cors = require('cors');
+app.use(cors());
+
 app.use(bodyParser.json()); // For parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
 
