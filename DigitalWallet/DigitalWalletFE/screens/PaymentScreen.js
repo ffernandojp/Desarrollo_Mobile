@@ -16,8 +16,15 @@ const PaymentScreen = ({ route }) => {
       },
       body: JSON.stringify({ amount, transactionID }),
     })
-      .then(response => response.json())
-      .then(data => {
+    .then(response => {
+      console.log('Response Status:', response.status);
+      return response.text(); // Log the raw text
+  })
+  .then(text => {
+    console.log('Response Text:', text);
+    try {
+        const data = JSON.parse(text); // Attempt to parse JSON
+        console.log('Parsed Data:', data);
         Alert.alert(
           'Confirmation',
           `${data.message}
@@ -36,6 +43,9 @@ const PaymentScreen = ({ route }) => {
           ],
           { cancelable: false } // Optional: Prevents dismissing by tapping outside
         );
+      } catch (error) {
+        console.error('JSON Parse Error:', error);
+    }
       })
       .catch(error => {
         console.error('Error:', error);

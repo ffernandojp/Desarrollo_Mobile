@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 
 app.post('/generate-qr', (req, res) => {
   const { amount, transactionID } = req.body;
-
+    console.log(amount, transactionID)
     if (!amount && !transactionID ) return res.status(500).send('You need to send all keys')
 
     // Construct the URL for redirection

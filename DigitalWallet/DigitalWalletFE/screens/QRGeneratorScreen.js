@@ -10,21 +10,26 @@ const QRGeneratorScreen = () => {
     const [transactionID, setTransactionID] = React.useState(0)
     // const [amount, onChangeAmount] = React.useState('')
   
-    const handleConfirmPayment = ({amount, transactionID}) => {
-      // Call your backend API to process the payment here
-      fetch('http://192.168.151.26:3001/process-payment', {
+    const handleGenerateQR = () => {
+      // Call your backend API to generate QR here
+      console.log(amount, transactionID)
+      fetch('http://192.168.151.131:3001/generate-qr', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ amount, transactionID }),
       })
-        .then(response => response.json())
+        .then(response => {if (!response.ok) {
+          throw new Error('Network response was not ok ' + response.statusText);
+      }
+      return response.json();
+  })
         .then(data => {
           Alert.alert(
             'Confirmation',
-            `${data.message}
-            \nRedirecting to your banking app...
+            `
+            QR code has been generated successfully!
             `,
             [
               {
@@ -79,7 +84,7 @@ const QRGeneratorScreen = () => {
       />
       
     </SafeAreaView>
-        <Button title="Generate QR" style={styles.button} onPress={handleConfirmPayment} />
+        <Button title="Generate QR" style={styles.button} onPress={handleGenerateQR} />
       </View>
     );
 };
