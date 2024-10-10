@@ -1,9 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
+require('dotenv').config();
+
 const app = express();
-const port = 3001;
-const host = "192.168.100.6";
+const port = process.env.SERVICE_PORT;
+const host = process.env.SERVICE_HOST;
 
 let balance = 8000000
 
@@ -31,9 +33,11 @@ app.post('/generate-qr', (req, res) => {
     const qrData = `http://${host}:${port}${redirectUrl}`;
     QRCode.toDataURL(qrData, (err, url) => {
         if (err) return res.status(500).send('Error generating QR code')
+          // Send JSON response
           res.json({ qrCode: url })
-          res.send(`<img src="${url}">`);
-        
+
+          // Or send HTML response
+          // res.send(`<img src="${url}">`);
         
     })
 })

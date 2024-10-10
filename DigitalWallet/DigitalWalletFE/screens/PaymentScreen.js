@@ -2,6 +2,7 @@ import React from 'react';
 import { Alert, View, Text, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useBalance } from '../context/BalanceContext';
+import { EXPO_PUBLIC_BE_URL, EXPO_PUBLIC_BE_PORT } from '@env';
 
 
 
@@ -10,9 +11,10 @@ const PaymentScreen = ({ route }) => {
   const { updateBalance } = useBalance(); // Access the balance context
   const { amount, transactionID } = route.params;
 
+  
   const handleConfirmPayment = () => {
     // Call your backend API to process the payment here
-    fetch('http://192.168.100.6:3001/process-payment', {
+    fetch(`${EXPO_PUBLIC_BE_URL}:${EXPO_PUBLIC_BE_PORT}/process-payment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
