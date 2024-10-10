@@ -1,6 +1,7 @@
 import React from 'react';
 import { Alert, View, Text, Button, StyleSheet, SafeAreaView, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { EXPO_PUBLIC_BE_URL, EXPO_PUBLIC_BE_PORT } from '@env';
 
 
 const QRGeneratorScreen = () => {
@@ -12,7 +13,7 @@ const QRGeneratorScreen = () => {
   
     const handleGenerateQR = () => {
       // Call your backend API to generate QR here
-      fetch('http://192.168.100.6:3001/generate-qr', {
+      fetch(`${EXPO_PUBLIC_BE_URL}:${EXPO_PUBLIC_BE_PORT}/generate-qr`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

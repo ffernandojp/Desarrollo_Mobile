@@ -1,4 +1,6 @@
 import React, { createContext, useState } from 'react';
+import { EXPO_PUBLIC_BE_URL, EXPO_PUBLIC_BE_PORT } from '@env';
+
 
 const BalanceContext = createContext();
 
@@ -6,7 +8,7 @@ export const BalanceProvider = ({ children }) => {
     const [balance, setBalance] = useState(0.00); 
 
     const updateBalance = () => {
-      fetch('http://192.168.100.6:3001/get-balance', {
+      fetch(`${EXPO_PUBLIC_BE_URL}:${EXPO_PUBLIC_BE_PORT}/get-balance`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image, StyleSheet, Button, Alert } from 'react-native';
+import { View, Image, StyleSheet, Button, Alert, Text } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
