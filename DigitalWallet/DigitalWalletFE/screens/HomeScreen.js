@@ -1,10 +1,23 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
+import { useBalance } from '../context/BalanceContext';
 
 const HomeScreen = ({ navigation }) => {
+  
+  const { balance, updateBalance } = useBalance();
+  
+  React.useEffect(() => {
+    updateBalance();
+  }, [balance]);
+
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to the Digital Wallet</Text>
+      <Text style={styles.title}>Welcome again to Digital Wallet</Text>
+      <View style={styles.balanceContainer}>
+        <Text style={styles.balanceContainer.title}>Your current balance is:</Text>
+        <Text style={styles.balanceContainer.balance}>${balance}</Text>
+      </View>
       <Text style={styles.subtitle}>Choose an option below:</Text>
       
       <View style={styles.buttons}>
@@ -20,7 +33,6 @@ const HomeScreen = ({ navigation }) => {
       />
       </View>
       
-      {/* You can add more buttons for other functionalities here */}
       {/* Example: 
       <Button
         title="View Transactions"
@@ -38,6 +50,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#f8f9fa',
+  },
+  balanceContainer: {
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 80,
+    title: {
+      fontSize: 20,
+      fontWeight: "semibold",
+      marginBottom: 3,
+      textAlign: "center",
+    },
+    balance: {
+      fontSize: 18,
+      fontWeight: "bold",
+      marginBottom: 10,
+      color: "blue",
+      textAlign: "center",
+    },
   },
   title: {
     fontSize: 24,

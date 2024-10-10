@@ -3,6 +3,9 @@ const bodyParser = require('body-parser');
 
 const app = express();
 const port = 3001;
+const host = "192.168.100.6";
+
+let balance = 8000000
 
 const QRCode = require('qrcode')
 
@@ -19,17 +22,18 @@ app.use((req, res, next) => {
 
 app.post('/generate-qr', (req, res) => {
   const { amount, transactionID } = req.body;
-    console.log(amount, transactionID)
-    if (!amount && !transactionID ) return res.status(500).send('You need to send all keys')
+    if (!amount || !transactionID ) return res.status(500).send('You need to send all keys')
 
     // Construct the URL for redirection
     const redirectUrl = `/redirect-to-process-payment?amount=${amount}&transactionID=${transactionID}`;
 
     // const qrData = JSON.stringify({ amount, transactionID })
-    const qrData = `http://localhost:${port}${redirectUrl}`;
+    const qrData = `http://${host}:${port}${redirectUrl}`;
     QRCode.toDataURL(qrData, (err, url) => {
         if (err) return res.status(500).send('Error generating QR code')
-    res.send(`<img src="${url}">`);
+          res.json({ qrCode: url })
+          res.send(`<img src="${url}">`);
+        
         
     })
 })
@@ -56,9 +60,15 @@ app.post('/process-payment', (req, res) => {
     console.log(`Payment received for amount: ${amount}, transaction ID: ${transactionID}`);
 
 
-    // TODO: Implement your payment processing logic here
-    // TODO: Check if the provided transaction ID exists in your database
-    // TODO: Perform the necessary payment processing and update the user's balance
+    // Process the payment
+    if (amount > balance) {
+      return res.status(400).json({ message: 'Insufficient funds in your account to process the payment' });
+    }
+
+    balance -= amount;
+
+    // Update the balance in the database
+    // Replace this with my own database implementation
 
     // For demonstration purposes, let's assume the payment processing is successful
     res.status(200).json({ message: 'Payment processed successfully' });
@@ -140,7 +150,11 @@ app.get("/", (req, res) => {
   res.send("Digital Wallet Server");
 })
 
+app.get("/get-balance", (req, res) => {
+  res.send({ balance: balance })
+} )
+
 // Start the server
 app.listen(port, () => {
-  console.log(`Digital Wallet server listening at http://localhost:${port}`);
+  console.log(`Digital Wallet server listening at http://${host}:${port}`);
 });

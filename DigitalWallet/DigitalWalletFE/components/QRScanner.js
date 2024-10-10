@@ -40,8 +40,8 @@ export default function QRScanner() {
 
     Alert.alert(
         'Confirmation',
-        `Bar code with type ${type} and data ${data} has been scanned!
-        Now you will be redirect to the payment section, do you want to continue?
+        `The QR code has been scanned successfully!
+        \nNow you will be redirect to the payment section, do you want to continue?
         `,
         [
           {
@@ -51,7 +51,7 @@ export default function QRScanner() {
           },
           {
             text: 'OK',
-            onPress: () => {console.log('OK Pressed'); navigation.navigate('Payment', { amount, transactionID });},
+            onPress: () => {navigation.navigate('Payment', { amount, transactionID });},
           },
         ],
         { cancelable: false } // Optional: Prevents dismissing by tapping outside

@@ -12,8 +12,7 @@ const QRGeneratorScreen = () => {
   
     const handleGenerateQR = () => {
       // Call your backend API to generate QR here
-      console.log(amount, transactionID)
-      fetch('http://192.168.151.131:3001/generate-qr', {
+      fetch('http://192.168.100.6:3001/generate-qr', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -23,14 +22,14 @@ const QRGeneratorScreen = () => {
         .then(response => {if (!response.ok) {
           throw new Error('Network response was not ok ' + response.statusText);
       }
+      // console.log('Response:', response.url);
       return response.json();
-  })
-        .then(data => {
+        }).then(data => {
+          const qrCodeUrl = data.qrCode;
           Alert.alert(
             'Confirmation',
-            `
-            QR code has been generated successfully!
-            `,
+            `QR code has been generated successfully!
+            \nYou can share it with your friends!`,
             [
               {
                 text: 'Cancel',
@@ -39,13 +38,14 @@ const QRGeneratorScreen = () => {
               },
               {
                 text: 'OK',
-                onPress: () => {console.log('OK Pressed'); navigation.navigate('Home');},
+                onPress: () => {// Navigate to QR Code display screen with the QR code URL
+                  navigation.navigate('QRCodeDisplay', { qrCodeUrl: qrCodeUrl });},
               },
             ],
             { cancelable: false } // Optional: Prevents dismissing by tapping outside
-          );
+          )  
         })
-        .catch(error => {
+    .catch(error => {
           console.error('Error:', error);
         });
     };
@@ -64,6 +64,7 @@ const QRGeneratorScreen = () => {
       
     return (
       <View style={{ padding: 20 }}>
+        <Text style={styles.mainText}>QR Generator</Text>
         {/* <Text>Amount: {amount}</Text>
         <Text>Transaction ID: {transactionID}</Text>
         <Button title="Confirm Payment" onPress={handleConfirmPayment} /> */}
@@ -128,6 +129,11 @@ const styles = StyleSheet.create({
   },
   safearea: {
     marginBottom: 20
+  },
+  mainText: {
+    fontSize: 25,
+    fontWeight: "bold",
+    marginBottom: 30
   },
 });
 

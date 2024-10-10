@@ -1,15 +1,18 @@
 import React from 'react';
-import { Alert, View, Text, Button } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { Alert, View, Text, Button, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useBalance } from '../context/BalanceContext';
+
 
 
 const PaymentScreen = ({ route }) => {
   const navigation = useNavigation(); // Access navigation prop
+  const { updateBalance } = useBalance(); // Access the balance context
   const { amount, transactionID } = route.params;
 
-  const handleConfirmPayment = ({amount, transactionID}) => {
+  const handleConfirmPayment = () => {
     // Call your backend API to process the payment here
-    fetch('http://192.168.151.26:3001/process-payment', {
+    fetch('http://192.168.100.6:3001/process-payment', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -17,19 +20,17 @@ const PaymentScreen = ({ route }) => {
       body: JSON.stringify({ amount, transactionID }),
     })
     .then(response => {
-      console.log('Response Status:', response.status);
-      return response.text(); // Log the raw text
-  })
-  .then(text => {
-    console.log('Response Text:', text);
-    try {
-        const data = JSON.parse(text); // Attempt to parse JSON
-        console.log('Parsed Data:', data);
+        console.log('Response Status:', response.status);
+        return response.json(); // Parse the response as JSON
+    })
+    .then(data => {
+        updateBalance();
+
         Alert.alert(
           'Confirmation',
           `${data.message}
-          \nRedirecting to your banking app...
-          `,
+          \nTransaction ID: ${transactionID}
+          \nNow you will be redirected to the home screen ...`,
           [
             {
               text: 'Cancel',
@@ -38,27 +39,59 @@ const PaymentScreen = ({ route }) => {
             },
             {
               text: 'OK',
-              onPress: () => {console.log('OK Pressed'); navigation.navigate('Home');},
+              onPress: () => { navigation.navigate('Home'); },
             },
           ],
           { cancelable: false } // Optional: Prevents dismissing by tapping outside
         );
-      } catch (error) {
-        console.error('JSON Parse Error:', error);
-    }
-      })
-      .catch(error => {
+    })
+    .catch(error => {
         console.error('Error:', error);
-      });
-  };
+    });
+};
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text>Amount: {amount}</Text>
-      <Text>Transaction ID: {transactionID}</Text>
-      <Button title="Confirm Payment" onPress={handleConfirmPayment} />
+    <View style={styles.container}>
+      <Text style={styles.mainText}>Payment Confirmation</Text>
+      <View style={styles.textContainer}>
+      
+      <Text style={styles.headerText}>Amount</Text>
+      <Text style={styles.subText}>${amount}</Text>
+      <Text style={styles.headerText}>Transaction ID</Text>
+      <Text style={styles.subText}>{transactionID}</Text>
+      </View>
+      <Button style={{marginTop: 20}} title="Confirm Payment" onPress={handleConfirmPayment} />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
+  textContainer: {
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20
+  },
+  mainText: {
+    fontSize: 25,
+    fontWeight: "bold",
+    marginBottom: 30
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 3,
+    textAlign: "center",
+  },
+  subText: {
+    fontSize: 16,
+    marginBottom: 10,
+  }
+});
 
 export default PaymentScreen;
