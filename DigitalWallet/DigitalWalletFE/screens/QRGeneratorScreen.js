@@ -2,6 +2,7 @@ import React from 'react';
 import { Alert, View, Text, Button, StyleSheet, SafeAreaView, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import { EXPO_PUBLIC_BE_URL, EXPO_PUBLIC_BE_PORT } from '@env';
+import { useSession } from '../context/SessionContext';
 
 
 const QRGeneratorScreen = () => {
@@ -10,13 +11,19 @@ const QRGeneratorScreen = () => {
     const [amount, onChangeAmount] = React.useState(0);
     const [transactionID, setTransactionID] = React.useState(0)
     // const [amount, onChangeAmount] = React.useState('')
-  
-    const handleGenerateQR = () => {
+
+    const { getToken } = useSession();
+
+    const handleGenerateQR = async () => {
+      const token = await getToken();
+      console.log(token)
+
       // Call your backend API to generate QR here
       fetch(`${EXPO_PUBLIC_BE_URL}:${EXPO_PUBLIC_BE_PORT}/generate-qr`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include the token here
         },
         body: JSON.stringify({ amount, transactionID }),
       })
@@ -34,7 +41,7 @@ const QRGeneratorScreen = () => {
             [
               {
                 text: 'Cancel',
-                onPress: () => console.log('Cancel Pressed'),
+                // onPress: () => console.log('Cancel Pressed'),
                 style: 'cancel',
               },
               {
@@ -66,9 +73,6 @@ const QRGeneratorScreen = () => {
     return (
       <View style={{ padding: 20 }}>
         <Text style={styles.mainText}>QR Generator</Text>
-        {/* <Text>Amount: {amount}</Text>
-        <Text>Transaction ID: {transactionID}</Text>
-        <Button title="Confirm Payment" onPress={handleConfirmPayment} /> */}
     <SafeAreaView style={styles.safearea}>
     <Text  style = {styles.headerText}>Transaction ID</Text>
       <TextInput
@@ -77,7 +81,7 @@ const QRGeneratorScreen = () => {
         value={`${transactionID}`}
         editable={false}
       />
-        <Text  style = {styles.headerText}>Amount</Text>
+        <Text  style = {styles.headerText}>Amount $</Text>
       <TextInput
         style={styles.input}
         onChangeText={onChangeAmount}

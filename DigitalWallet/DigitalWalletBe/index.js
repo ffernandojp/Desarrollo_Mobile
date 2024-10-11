@@ -1,7 +1,16 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+import authenticateToken, { generateAccessToken } from './middlewares/authTokenMiddleware.js';
+import express from 'express';
+import bodyParser from 'body-parser';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import QRCode from 'qrcode'
 
-require('dotenv').config();
+
+// Load environment variables
+
+dotenv.config();
+
 
 const app = express();
 const port = process.env.SERVICE_PORT;
@@ -9,9 +18,6 @@ const host = process.env.SERVICE_HOST;
 
 let balance = 8000000
 
-const QRCode = require('qrcode')
-
-const cors = require('cors');
 app.use(cors());
 
 app.use(bodyParser.json()); // For parsing application/json
@@ -22,7 +28,58 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post('/generate-qr', (req, res) => {
+
+app.get("/", authenticateToken, (req, res) => {
+  res.send("Digital Wallet Server");
+})
+
+// Route to authenticate a user
+app.post('/auth', (req, res) => {
+  const { email, password } = req.body;
+
+  // Check if required fields are provided
+  if (!email ||!password) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Find the user in the database
+  const users = [
+    // Existing users...
+    { id: 1, name: 'Fernando Pérez', email: 'fernandojp@example.com', password: 'Password123' },
+  ];
+
+  const user = users.find(u => u.email === email && u.password === password);
+
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
+
+  // Generate a JWT token for the authenticated user
+  const token = generateAccessToken({ id: user.id, email: user.email });
+  const username = user.name;
+   // Send token back to the client
+  res.json({ message: 'Authentication successful', user: username, token });
+  // You can store the JWT token in the user's session or send it as a response header
+  // res.setHeader('Authorization', `Bearer ${token}`);
+});
+
+app.get("/login", (req, res) => {
+  res.send("Login")
+} )
+
+app.get("/get-balance", authenticateToken, (req, res) => {
+  const users = [
+    // Existing users...
+    { id: 1, name: 'Fernando Pérez', email: 'fernandojp@example.com', password: 'Password123', balance: 800000 },
+  ];
+
+  // Find the user in the database
+  const user = users.find(u => u.email === req.user.email);
+  res.send({ balance: user.balance })
+} )
+
+
+app.post('/generate-qr', authenticateToken, (req, res) => {
   const { amount, transactionID } = req.body;
     if (!amount || !transactionID ) return res.status(500).send('You need to send all keys')
 
@@ -42,7 +99,7 @@ app.post('/generate-qr', (req, res) => {
     })
 })
 
-app.get('/redirect-to-process-payment', (req, res) => {
+app.get('/redirect-to-process-payment', authenticateToken, (req, res) => {
   const { amount, transactionID } = req.query;
 
   // Create an HTML form that submits via POST
@@ -59,7 +116,7 @@ app.get('/redirect-to-process-payment', (req, res) => {
 });
 
 
-app.post('/process-payment', (req, res) => {
+app.post('/process-payment', authenticateToken, (req, res) => {
     const { amount, transactionID } = req.body;
     console.log(`Payment received for amount: ${amount}, transaction ID: ${transactionID}`);
 
@@ -106,7 +163,6 @@ app.post('/users', (req, res) => {
   }
 
   // Store the new user in the database
-  // Replace this with your own database implementation
   const users = [
     // Existing users...
     { id: 1, name, email, password },
@@ -115,48 +171,6 @@ app.post('/users', (req, res) => {
   res.status(201).json({ message: 'User created successfully', user: users[users.length - 1] });
 });
 
-// Route to authenticate a user
-app.post('/auth', (req, res) => {
-  const { email, password } = req.body;
-
-  // Check if required fields are provided
-  if (!email ||!password) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  // Find the user in the database
-  // Replace this with your own database implementation
-  const users = [
-    // Existing users...
-    { id: 1, name: 'John Doe', email: 'john.doe@example.com', password: 'password123' },
-  ];
-
-  const user = users.find(u => u.email === email && u.password === password);
-
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid email or password' });
-  }
-
-  // Generate a JWT token for the authenticated user
-  // Replace this with your own JWT token generation logic
-
-  const token = 'your_jwt_token_here';
-  res.json({ message: 'Authentication successful', token });
-  // You can store the JWT token in the user's session or send it as a response header
-  // res.setHeader('Authorization', `Bearer ${token}`);
-});
-
-app.get("/login", (req, res) => {
-  res.send("Login")
-} )
-
-app.get("/", (req, res) => {
-  res.send("Digital Wallet Server");
-})
-
-app.get("/get-balance", (req, res) => {
-  res.send({ balance: balance })
-} )
 
 // Start the server
 app.listen(port, () => {

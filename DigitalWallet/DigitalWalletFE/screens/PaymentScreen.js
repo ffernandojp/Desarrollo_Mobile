@@ -3,7 +3,7 @@ import { Alert, View, Text, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useBalance } from '../context/BalanceContext';
 import { EXPO_PUBLIC_BE_URL, EXPO_PUBLIC_BE_PORT } from '@env';
-
+import { useSession } from '../context/SessionContext';
 
 
 const PaymentScreen = ({ route }) => {
@@ -11,13 +11,16 @@ const PaymentScreen = ({ route }) => {
   const { updateBalance } = useBalance(); // Access the balance context
   const { amount, transactionID } = route.params;
 
+  const { getToken } = useSession();
   
-  const handleConfirmPayment = () => {
+  const handleConfirmPayment = async () => {
+    const token = await getToken();
     // Call your backend API to process the payment here
     fetch(`${EXPO_PUBLIC_BE_URL}:${EXPO_PUBLIC_BE_PORT}/process-payment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({ amount, transactionID }),
     })
@@ -36,7 +39,7 @@ const PaymentScreen = ({ route }) => {
           [
             {
               text: 'Cancel',
-              onPress: () => console.log('Cancel Pressed'),
+              // onPress: () => console.log('Cancel Pressed'),
               style: 'cancel',
             },
             {
@@ -57,7 +60,7 @@ const PaymentScreen = ({ route }) => {
       <Text style={styles.mainText}>Payment Confirmation</Text>
       <View style={styles.textContainer}>
       
-      <Text style={styles.headerText}>Amount</Text>
+      <Text style={styles.headerText}>Amount $</Text>
       <Text style={styles.subText}>${amount}</Text>
       <Text style={styles.headerText}>Transaction ID</Text>
       <Text style={styles.subText}>{transactionID}</Text>

@@ -1,14 +1,13 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { CameraType } from 'expo-camera/legacy';
 import { useState } from 'react';
-import { Alert, Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 
 export default function QRScanner() {
   const navigation = useNavigation(); // Access navigation prop
 
-  const [facing, setFacing] = useState(CameraType.back);
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
 
@@ -28,9 +27,6 @@ export default function QRScanner() {
     );
   }
 
-  function toggleCameraFacing() {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
-  }
 
   const handleBarcodeScanned = ({ type, data }) => {
     setScanned(true);
@@ -46,7 +42,7 @@ export default function QRScanner() {
         [
           {
             text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
+            // onPress: () => console.log('Cancel Pressed'),
             style: 'cancel',
           },
           {
@@ -72,7 +68,7 @@ export default function QRScanner() {
 
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing} onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+      <CameraView style={styles.camera} onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
         barcodeScannerSettings={{
           barcodeTypes: ["qr", "pdf417"],
         }}
@@ -80,11 +76,6 @@ export default function QRScanner() {
      {scanned && (
         <Button title={"Tap to Scan Again"} onPress={() => setScanned(false)} />
       )}
-        {/* <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
-        </View> */}
       </CameraView>
     </View>
   );

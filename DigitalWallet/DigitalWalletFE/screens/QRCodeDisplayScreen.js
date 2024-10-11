@@ -10,7 +10,8 @@ const QRCodeDisplayScreen = ({ route }) => {
 
     const copyToClipboard = async () => {
       await Clipboard.setStringAsync(qrCodeUrl); // Copying the text to clipboard
-      Alert.alert(`Link copied to Clipboard! \n \nShare it with your friends!`);
+      Alert.alert(`QR Code copied to Clipboard!`,
+        `Link copied to Clipboard! Share it with your friends!`);
   };
 
     return (

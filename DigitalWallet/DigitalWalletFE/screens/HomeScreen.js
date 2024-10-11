@@ -1,10 +1,13 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, Image } from 'react-native';
 import { useBalance } from '../context/BalanceContext';
+import { useSession } from '../context/SessionContext';
 
 const HomeScreen = ({ navigation }) => {
   
   const { balance, updateBalance } = useBalance();
+
+  const { user } = useSession();
   
   React.useEffect(() => {
     updateBalance();
@@ -13,7 +16,11 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Image source={require('../assets/e-wallet.png')} style={styles.logo} />
       <Text style={styles.title}>Welcome again to Digital Wallet</Text>
+      <View>
+        <Text style={styles.titleUser}>User: {user}</Text>
+      </View>
       <View style={styles.balanceContainer}>
         <Text style={styles.balanceContainer.title}>Your current balance is:</Text>
         <Text style={styles.balanceContainer.balance}>${balance}</Text>
@@ -75,16 +82,26 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  titleUser: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    marginTop: 20
+  },
   subtitle: {
     fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   buttons: {
     flexDirection: 'row',
     justifyContent:'space-around',
     marginBottom: 20,
     gap: 25
-  }
+  },
+  logo: {
+    width: 200,
+    height: 200,
+  },
 });
 
 export default HomeScreen;
