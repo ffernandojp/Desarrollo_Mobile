@@ -20,7 +20,7 @@ export const BalanceProvider = ({ children }) => {
       })
       .then(response => response.json())
       .then(data => {
-        setBalance(data.balance);
+        if (data.balance) setBalance(parseFloat(data.balance));
       })
     };
 

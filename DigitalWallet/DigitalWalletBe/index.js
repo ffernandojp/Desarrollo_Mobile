@@ -1,10 +1,10 @@
 import authenticateToken, { generateAccessToken } from './middlewares/authTokenMiddleware.js';
 import express from 'express';
 import bodyParser from 'body-parser';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import QRCode from 'qrcode'
+import bcrypt from 'bcrypt';
 
 
 // Load environment variables
@@ -15,8 +15,6 @@ dotenv.config();
 const app = express();
 const port = process.env.SERVICE_PORT;
 const host = process.env.SERVICE_HOST;
-
-let balance = 8000000
 
 app.use(cors());
 
@@ -29,12 +27,20 @@ app.use((req, res, next) => {
 });
 
 
+// Array of users for authentication purposes
+  // Find the user in the database
+  const users = [
+    // Existing users...
+    { id: 1, name: 'Fernando Pérez', email: 'fernandojp@example.com', password: 'Password123', balance: 800000 },
+  ];
+
+
 app.get("/", authenticateToken, (req, res) => {
   res.send("Digital Wallet Server");
 })
 
 // Route to authenticate a user
-app.post('/auth', (req, res) => {
+app.post('/auth', async (req, res) => {
   const { email, password } = req.body;
 
   // Check if required fields are provided
@@ -42,41 +48,90 @@ app.post('/auth', (req, res) => {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  // Find the user in the database
-  const users = [
-    // Existing users...
-    { id: 1, name: 'Fernando Pérez', email: 'fernandojp@example.com', password: 'Password123' },
-  ];
+  try {
 
-  const user = users.find(u => u.email === email && u.password === password);
+    const user = users.find(u => u.email === email);
 
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid email or password' });
+    if (!user) {
+        return res.status(401).json({ error: 'User not found' });
+    }
+    // Compare the provided password with the stored hash
+    const isMatch = await bcrypt.compare(password, user.password);
+    
+    if (isMatch) {
+      // Generate a JWT token for the authenticated user
+      const token = generateAccessToken({ id: user.id, email: user.email });
+      const username = user.name;
+      // Send token back to the client
+      res.json({ message: 'Authentication successful', user: username, token });
+      // You can store the JWT token in the user's session or send it as a response header
+      // res.setHeader('Authorization', `Bearer ${token}`);
+        // res.status(200).json({ message: 'Login successful!' });
+    } else {
+        res.status(401).json({ error: 'Invalid email or password' });
+    }
+} catch (error) {
+    res.status(500).json({ error: 'Error verifying password' });
+}
+});
+
+app.post('/register', async (req, res) => {
+  const { name, email, password } = req.body;
+  if (!name || !email || !password) {
+    return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  // Generate a JWT token for the authenticated user
-  const token = generateAccessToken({ id: user.id, email: user.email });
-  const username = user.name;
-   // Send token back to the client
-  res.json({ message: 'Authentication successful', user: username, token });
-  // You can store the JWT token in the user's session or send it as a response header
-  // res.setHeader('Authorization', `Bearer ${token}`);
-});
+  // Check if email is in a valid format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
+  }
+
+  if (users.find(u => u.email === email)) {
+    return res.status(400).json({ error: 'Email already exists' });
+  }
+
+  // Check if password meets the required complexity requirements
+  const passwordRegex = /^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&?"`/]).*$/;
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({
+      error: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+    });
+  }
+
+  try {
+    // Generate a salt and hash the password
+    const saltRounds = 10; // You can adjust the cost factor
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Here you would typically save the username and hashedPassword to your database
+    users.push({ id: users.length + 1, name, email, password: hashedPassword });
+
+    res.status(201).json({ success: true });
+  
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to register user' });
+  }
+
+})
 
 app.get("/login", (req, res) => {
   res.send("Login")
 } )
 
 app.get("/get-balance", authenticateToken, (req, res) => {
-  const users = [
-    // Existing users...
-    { id: 1, name: 'Fernando Pérez', email: 'fernandojp@example.com', password: 'Password123', balance: 800000 },
-  ];
 
   // Find the user in the database
   const user = users.find(u => u.email === req.user.email);
-  res.send({ balance: user.balance })
+  res.send({ balance: user.balance ? user.balance : 0.00 })
 } )
+
+app.post("/deposit", authenticateToken, (req, res) => {
+  const { amount } = req.body;
+  const user = users.find(u => u.email === req.user.email);
+  user.balance = user.balance ? user.balance + parseFloat(amount) : parseFloat(amount);
+  res.send({ message: 'Deposit successful' })
+})
 
 
 app.post('/generate-qr', authenticateToken, (req, res) => {

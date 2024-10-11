@@ -18,27 +18,45 @@ const HomeScreen = ({ navigation }) => {
     <View style={styles.container}>
       <Image source={require('../assets/e-wallet.png')} style={styles.logo} />
       <Text style={styles.title}>Welcome again to Digital Wallet</Text>
-      <View>
-        <Text style={styles.titleUser}>User: {user}</Text>
+      <View style={styles.userContainer}>
+        <Text style={styles.titleUser}>Hi {user}</Text>
+        <Text style={styles.subtitleUser}>What would you like to do today?</Text>
       </View>
       <View style={styles.balanceContainer}>
         <Text style={styles.balanceContainer.title}>Your current balance is:</Text>
         <Text style={styles.balanceContainer.balance}>${balance}</Text>
       </View>
-      <Text style={styles.subtitle}>Choose an option below:</Text>
+      <View style={styles.depositContainer}>
+        <Text style={styles.subtitle}>Deposit into your wallet using the following button:</Text>
+        <Button title="Deposit" color={'#D6A600'} onPress={() => navigation.navigate('Deposit')} />
+      </View>
+      <View style={styles.qrContainer}>
+        <Text style={styles.subtitle}>Scan QR Code or generate one:</Text>
+        <Button title="Scan QR Code" onPress={() => navigation.navigate('QRScanner')} />
+        <Button title="Generate QR Code" color={'grey'} onPress={() => navigation.navigate('GenerateQR')} />
+      </View>
+      {/* <View style={styles.depositContainer}>
+        <Text style={styles.subtitle}>Deposit into your wallet using the following button:</Text>
+      </View> */}
       
-      <View style={styles.buttons}>
+      {/* <View style={styles.buttons}>
+      <Button title="Deposit" color={'#D6A600'} onPress={() => navigation.navigate('Deposit')} />
 
       <Button
         title="Scan QR Code"
         onPress={() => navigation.navigate('QRScanner')}
       />
+      
       <Button
         color={'grey'}
         title="Generate QR Code"
         onPress={() => navigation.navigate('GenerateQR')}
       />
-      </View>
+      </View> */}
+      {/* <View style={styles.buttonLogoutContainer}>
+
+        <Button title="Logout" color={'red'} onPress={() => navigation.navigate('Login')} />
+      </View> */}
       
       {/* Example: 
       <Button
@@ -58,21 +76,27 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f8f9fa',
   },
-  balanceContainer: {
-    padding: 20,
+  userContainer: {
+    padding: 15,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 80,
+    marginBottom: 10,
+  },
+  balanceContainer: {
+    padding: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
     title: {
-      fontSize: 20,
-      fontWeight: "semibold",
+      fontSize: 18,
+      fontWeight: "bold",
       marginBottom: 3,
       textAlign: "center",
     },
     balance: {
       fontSize: 18,
       fontWeight: "bold",
-      marginBottom: 10,
+      marginBottom: 8,
       color: "blue",
       textAlign: "center",
     },
@@ -80,28 +104,50 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   titleUser: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
-    marginTop: 20
+    marginBottom: 8,
+    marginTop: 18
+  },
+  subtitleUser: {
+    fontSize: 16,
+    marginBottom: 8,
+    fontWeight: 'bold',
   },
   subtitle: {
     fontSize: 16,
-    marginBottom: 10,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   buttons: {
     flexDirection: 'row',
     justifyContent:'space-around',
-    marginBottom: 20,
-    gap: 25
+    // justifyContent: 'center',
+    // flexWrap: 'wrap',
+    marginBottom: 18,
+    gap: 20
   },
   logo: {
     width: 200,
     height: 200,
   },
+  depositContainer: {
+    marginVertical: 20
+  },
+  qrContainer: {
+    width: '100%',
+    justifyContent: 'space-around',
+    height: '20%',
+    
+    marginVertical: 12,
+    
+  },
+  // buttonLogoutContainer: {
+  //   marginTop: 25
+  // },
 });
 
 export default HomeScreen;

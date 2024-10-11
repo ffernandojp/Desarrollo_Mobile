@@ -5,36 +5,32 @@ import { EXPO_PUBLIC_BE_URL, EXPO_PUBLIC_BE_PORT } from '@env';
 import { useSession } from '../context/SessionContext';
 
 
-const LoginScreen = ({ navigation }) => {
+const RegisterScreen = ({ navigation }) => {
+  const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const { setUser } = useSession();
 
-    const handleRegister = () => {
-        navigation.navigate('Register');
+    const handleLogin = () => {
+        navigation.navigate('Login');
     }; 
 
-    // const handleForgotPassword = () => {
-    //     navigation.navigate('ForgotPassword');
-    // };
 
-    const handleLogin = async () => {
-      fetch(`${EXPO_PUBLIC_BE_URL}:${EXPO_PUBLIC_BE_PORT}/auth`, {
+    const handleRegister = async () => {
+      fetch(`${EXPO_PUBLIC_BE_URL}:${EXPO_PUBLIC_BE_PORT}/register`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ name, email, password }),
       }).then(response => response.json()).then(data => {
-          if (data.token) {
-              SecureStore.setItemAsync('jwtToken', data.token);
-              setUser(data.user);
-              Alert.alert('Login Successful', 'Welcome back!');
-              navigation.navigate('Home');
+          if (data.success) {
+              Alert.alert('Register Successful', 'Welcome! You can now login.');
+              navigation.navigate('Login');
           }
           else {
-              Alert.alert('Login Failed', data.error);
+              Alert.alert('Register Failed', data.error);
           }
       }).catch(error => {
           Alert.alert('Error', error.message || 'An unexpected error occurred.');
@@ -44,28 +40,35 @@ const LoginScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
           <Image source={require('../assets/e-wallet.png')} style={styles.logo} />
-            <Text style={styles.mainTitle}>Login to your account</Text>
+            <Text style={styles.mainTitle}>Register to Digital Wallet</Text>
             <View style={styles.form}>
-                <Text style={styles.title}>Email</Text>
+            <Text style={styles.title}>Name</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
+                    placeholder="Name"
+                    value={name}
+                    onChangeText={setName}
                 />
-                <Text style={styles.title}>Password</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Password"
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
-                />
+          <Text style={styles.title}>Email</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+            />
+            <Text style={styles.title}>Password</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Password"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+            />
             </View>
-            <Button title="Login" onPress={handleLogin} />
+            <Button title="Register" onPress={handleRegister} />
             <View style={styles.buttons}>
-                <Text style={styles.titleRegister}>Don't have an account?</Text>
-                <Button color={'grey'} title="Register" onPress={handleRegister} />
+                <Text style={styles.titleLogIn}>Already have an account?</Text>
+                <Button color={'grey'} title="Login" onPress={handleLogin} />
                 {/* <Button color={'grey'} title="Forgot Password" onPress={handleForgotPassword} /> */}
             </View>
         </View>
@@ -96,12 +99,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 4,
     },
-    titleRegister: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginVertical: 24,
-        textAlign: 'center',
-    },
+    titleLogIn: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginVertical: 24,
+      textAlign: 'center',
+  },
     mainTitle: {
         fontSize: 24,
         fontWeight: 'bold',
@@ -112,14 +115,10 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     buttons: {
-        // flexDirection: 'row',
-        // justifyContent: 'space-between',
-        
-        // marginHorizontal: 16,
-        justifyContent: 'center',
-        marginTop: 32,
-        marginBottom: 46,
-    },
+      justifyContent: 'center',
+      marginTop: 32,
+      marginBottom: 46,
+  },
 });
 
-export default LoginScreen;
+export default RegisterScreen;

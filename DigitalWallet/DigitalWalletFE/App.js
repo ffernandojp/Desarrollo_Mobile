@@ -10,6 +10,8 @@ import QRCodeDisplayScreen from './screens/QRCodeDisplayScreen';
 import { BalanceProvider } from './context/BalanceContext';
 import LoginScreen from './screens/LoginScreen';
 import { SessionProvider } from './context/SessionContext';
+import RegisterScreen from './screens/RegisterScreen';
+import DepositScreen from './screens/DepositScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +29,8 @@ export default function App() {
           <Stack.Screen name="Payment" component={PaymentScreen} />
           <Stack.Screen name="GenerateQR" component={QRGeneratorScreen} />
           <Stack.Screen name="QRCodeDisplay" component={QRCodeDisplayScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="Deposit" component={DepositScreen} />
         </Stack.Navigator>
       </NavigationContainer>
       </BalanceProvider>
