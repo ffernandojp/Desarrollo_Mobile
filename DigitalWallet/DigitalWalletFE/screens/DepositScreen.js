@@ -13,6 +13,17 @@ const DepositScreen = () => {
   const { getToken } = useSession();
   
   const handleConfirmDeposit = async () => {
+     // Validate amount
+     const parsedAmount = parseFloat(amount);
+     if (isNaN(parsedAmount) || parsedAmount <= 0) {
+         Alert.alert(
+             'Invalid Amount',
+             'Please enter a valid amount greater than zero.',
+             [{ text: 'OK' }],
+             { cancelable: false }
+         );
+         return; // Exit the function if the amount is invalid
+     }
     const token = await getToken();
     // Call your backend API to process the payment here
     fetch(`${EXPO_PUBLIC_BE_URL}:${EXPO_PUBLIC_BE_PORT}/deposit`, {
@@ -51,6 +62,22 @@ const DepositScreen = () => {
     })
     .catch(error => {
         console.error('Error:', error);
+        Alert.alert(
+          'Confirmation',
+          'Something went wrong',
+          [
+            {
+              text: 'Cancel',
+              onPress: () => console.log('Cancel Pressed'),
+              style: 'cancel',
+            },
+            {
+              text: 'OK',
+              onPress: () => console.log('OK Pressed'),
+            },
+          ],
+          { cancelable: false } // Optional: Prevents dismissing by tapping outside
+        );
     });
 };
 

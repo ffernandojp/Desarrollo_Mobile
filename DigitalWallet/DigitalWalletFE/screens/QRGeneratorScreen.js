@@ -3,6 +3,7 @@ import { Alert, View, Text, Button, StyleSheet, SafeAreaView, TextInput } from '
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 import { EXPO_PUBLIC_BE_URL, EXPO_PUBLIC_BE_PORT } from '@env';
 import { useSession } from '../context/SessionContext';
+import { useTransactions } from '../context/TransactionsContext';
 
 
 const QRGeneratorScreen = () => {
@@ -14,9 +15,20 @@ const QRGeneratorScreen = () => {
 
     const { getToken } = useSession();
 
+    const { addTransaction } = useTransactions();
+
     const handleGenerateQR = async () => {
+      const parsedAmount = parseFloat(amount);
+      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+          Alert.alert(
+              'Invalid Amount',
+              'Please enter a valid amount greater than zero.',
+              [{ text: 'OK' }],
+              { cancelable: false }
+          );
+          return; // Exit the function if the amount is invalid
+      }
       const token = await getToken();
-      console.log(token)
 
       // Call your backend API to generate QR here
       fetch(`${EXPO_PUBLIC_BE_URL}:${EXPO_PUBLIC_BE_PORT}/generate-qr`, {
@@ -33,6 +45,7 @@ const QRGeneratorScreen = () => {
       // console.log('Response:', response.url);
       return response.json();
         }).then(data => {
+          addTransaction({transactionID, amount, status: 'pending' });
           const qrCodeUrl = data.qrCode;
           Alert.alert(
             'Confirmation',
@@ -54,7 +67,9 @@ const QRGeneratorScreen = () => {
           )  
         })
     .catch(error => {
+          addTransaction({transactionID, amount, status: 'failed' });
           console.error('Error:', error);
+          Alert.alert('Error', 'Failed to generate QR code: ' + error.message);
         });
     };
 

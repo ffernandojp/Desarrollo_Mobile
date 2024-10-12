@@ -12,6 +12,8 @@ import LoginScreen from './screens/LoginScreen';
 import { SessionProvider } from './context/SessionContext';
 import RegisterScreen from './screens/RegisterScreen';
 import DepositScreen from './screens/DepositScreen';
+import TransactionsScreen from './screens/TransactionsScreen';
+import { TransactionsProvider } from './context/TransactionsContext';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,21 +21,23 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <SessionProvider>
-
-      <BalanceProvider>
-        <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="QRScanner" component={QRScannerScreen} />
-          <Stack.Screen name="Payment" component={PaymentScreen} />
-          <Stack.Screen name="GenerateQR" component={QRGeneratorScreen} />
-          <Stack.Screen name="QRCodeDisplay" component={QRCodeDisplayScreen} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen name="Deposit" component={DepositScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-      </BalanceProvider>
+      <TransactionsProvider>
+        <BalanceProvider>
+          <NavigationContainer>
+          <Stack.Navigator initialRouteName="Login">
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="QRScanner" component={QRScannerScreen} />
+            <Stack.Screen name="Payment" component={PaymentScreen} />
+            <Stack.Screen name="GenerateQR" component={QRGeneratorScreen} />
+            <Stack.Screen name="QRCodeDisplay" component={QRCodeDisplayScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="Deposit" component={DepositScreen} />
+            <Stack.Screen name="Transactions" component={TransactionsScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+        </BalanceProvider>
+      </TransactionsProvider>
     </SessionProvider>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, Image } from 'react-native';
+import { View, Text, Button, StyleSheet, Image, ScrollView } from 'react-native';
 import { useBalance } from '../context/BalanceContext';
 import { useSession } from '../context/SessionContext';
 
@@ -15,7 +15,7 @@ const HomeScreen = ({ navigation }) => {
 
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Image source={require('../assets/e-wallet.png')} style={styles.logo} />
       <Text style={styles.title}>Welcome again to Digital Wallet</Text>
       <View style={styles.userContainer}>
@@ -24,7 +24,11 @@ const HomeScreen = ({ navigation }) => {
       </View>
       <View style={styles.balanceContainer}>
         <Text style={styles.balanceContainer.title}>Your current balance is:</Text>
-        <Text style={styles.balanceContainer.balance}>${balance}</Text>
+        <Text style={styles.balanceContainer.balance}>${balance.toFixed(2)}</Text>
+      </View>
+      <View style={styles.depositContainer}>
+        <Text style={styles.subtitle}>Deposit into your wallet using the following button:</Text>
+        <Button title="Transactions" color={'#47b242'} onPress={() => navigation.navigate('Transactions')} />
       </View>
       <View style={styles.depositContainer}>
         <Text style={styles.subtitle}>Deposit into your wallet using the following button:</Text>
@@ -64,26 +68,26 @@ const HomeScreen = ({ navigation }) => {
         onPress={() => navigation.navigate('Transactions')}
       />
       */}
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#f8f9fa',
   },
   userContainer: {
-    padding: 15,
+    padding: 5,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
   },
   balanceContainer: {
-    padding: 15,
+    padding: 5,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
@@ -110,7 +114,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
-    marginTop: 18
+    marginTop: 12
   },
   subtitleUser: {
     fontSize: 16,
@@ -135,14 +139,14 @@ const styles = StyleSheet.create({
     height: 200,
   },
   depositContainer: {
-    marginVertical: 20
+    marginVertical: 15
   },
   qrContainer: {
     width: '100%',
     justifyContent: 'space-around',
     height: '20%',
     
-    marginVertical: 12,
+    marginVertical: 15,
     
   },
   // buttonLogoutContainer: {

@@ -32,9 +32,77 @@ app.use((req, res, next) => {
   const users = [
     // Existing users...
     { id: 1, name: 'Fernando Pérez', email: 'fernandojp@example.com', password: '$2b$10$/v7gNVaj2acOTU3zaFuJXe5Re3JpUZUrGmqDNKsrznQsc/d36.uce', balance: 800000 },
-    { id:2, name: 'User Admin', email: 'user@admin.com', password: '$2b$10$tbYNk0o5xIawARC1tGUO6uy7K6Y1B1vvGvlPJIK0xwr1H.JE5qlOG', balance: 180000 } // Admin123
+    { id: 2, name: 'User Admin', email: 'user@admin.com', password: '$2b$10$tbYNk0o5xIawARC1tGUO6uy7K6Y1B1vvGvlPJIK0xwr1H.JE5qlOG', balance: 180000 } // Admin123
   ];
 
+// Array of transactions
+const transactions = [
+    {
+    id: 1,
+    amount: 1000,
+    transactionID: 123456789,
+    date: '2022-01-01',
+    status: 'success',
+    type: 'deposit',
+    user_id: 1
+  },
+  {
+    id: 2,
+    amount: 500,
+    transactionID: 987654321,
+    date: '2022-01-02',
+    status: 'pending',
+    type: 'withdrawal',
+    user_id: 2
+  },
+  {
+    id: 3,
+    amount: 2000,
+    transactionID: 456789123,
+    date: '2022-01-03',
+    status: 'failed',
+    type: 'deposit',
+    user_id: 2
+  },
+  {
+    id: 4,
+    amount: 1500,
+    transactionID: 789123456,
+    date: '2022-01-04',
+    status: 'success',
+    type: 'withdrawal',
+    user_id: 2
+  }
+];
+
+app.post("/add-transaction", authenticateToken, (req, res) => {
+  const { amount, transactionID, status, type, id } = req.body;
+
+  // Get the current date
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const day = String(currentDate.getDate()).padStart(2, '0');
+  const formattedDate = `${year}-${month}-${day}`;
+
+  if (id) {
+    const index = transactions.findIndex(t => t.id === id);
+    if (index !== -1) {
+      transactions[index] = { id, amount, transactionID, status, type, user_id: req.user.id, date: formattedDate };
+      res.send({message: "Transaction updated successfully", transactions});
+    } else {
+      res.status(404).send("Transaction not found");
+    }
+  } else {
+    transactions.push({ id: transactions.length + 1, amount, transactionID, status, type, user_id: req.user.id, date: formattedDate });
+    res.send({message: "Transaction updated successfully", transactions});
+  }
+})
+
+app.get("/get-transactions", authenticateToken, (req, res) => {
+  const userTransactions = transactions.filter(t => t.user_id === req.user.id);
+  res.send({transactions: userTransactions})
+})
 
 app.get("/", authenticateToken, (req, res) => {
   res.send("Digital Wallet Server");
@@ -129,6 +197,7 @@ app.get("/get-balance", authenticateToken, (req, res) => {
 
 app.post("/deposit", authenticateToken, (req, res) => {
   const { amount } = req.body;
+  if (!amount) return res.status(500).send('You need to send all keys')
   const user = users.find(u => u.email === req.user.email);
   user.balance = user.balance ? user.balance + parseFloat(amount) : parseFloat(amount);
   res.send({ message: 'Deposit successful' })
