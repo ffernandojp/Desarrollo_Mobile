@@ -31,7 +31,8 @@ app.use((req, res, next) => {
   // Find the user in the database
   const users = [
     // Existing users...
-    { id: 1, name: 'Fernando Pérez', email: 'fernandojp@example.com', password: 'Password123', balance: 800000 },
+    { id: 1, name: 'Fernando Pérez', email: 'fernandojp@example.com', password: '$2b$10$/v7gNVaj2acOTU3zaFuJXe5Re3JpUZUrGmqDNKsrznQsc/d36.uce', balance: 800000 },
+    { id:2, name: 'User Admin', email: 'user@admin.com', password: '$2b$10$tbYNk0o5xIawARC1tGUO6uy7K6Y1B1vvGvlPJIK0xwr1H.JE5qlOG', balance: 180000 } // Admin123
   ];
 
 
@@ -92,7 +93,7 @@ app.post('/register', async (req, res) => {
   }
 
   // Check if password meets the required complexity requirements
-  const passwordRegex = /^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!#$%&?"`/]).*$/;
+  const passwordRegex = /^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d)(?=.*\W).*$/;
   if (!passwordRegex.test(password)) {
     return res.status(400).json({
       error: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character'
@@ -175,6 +176,7 @@ app.post('/process-payment', authenticateToken, (req, res) => {
     const { amount, transactionID } = req.body;
     console.log(`Payment received for amount: ${amount}, transaction ID: ${transactionID}`);
 
+    let balance = users.find(u => u.email === req.user.email).balance;
 
     // Process the payment
     if (amount > balance) {
@@ -184,6 +186,8 @@ app.post('/process-payment', authenticateToken, (req, res) => {
     balance -= amount;
 
     // Update the balance in the database
+    users.find(u => u.email === req.user.email).balance = balance;
+
     // Replace this with my own database implementation
 
     // For demonstration purposes, let's assume the payment processing is successful
