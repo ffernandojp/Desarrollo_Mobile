@@ -7,15 +7,17 @@ import { useSession } from '../context/SessionContext';
 import { useTransactions } from '../context/TransactionsContext';
 import generateRandomId from '../hooks/generateRandomID';
 
-const DepositScreen = () => {
+const WithdrawScreen = () => {
   const [amount, setAmount] = React.useState(0);
   const navigation = useNavigation(); // Access navigation prop
   const { updateBalance } = useBalance(); // Access the balance context
 
   const { getToken } = useSession();
+
   const { addTransaction } = useTransactions();
+
   
-  const handleConfirmDeposit = async () => {
+  const handleConfirmWithdraw = async () => {
      // Validate amount
      const parsedAmount = parseFloat(amount);
      if (isNaN(parsedAmount) || parsedAmount <= 0) {
@@ -30,7 +32,7 @@ const DepositScreen = () => {
     const transactionID = generateRandomId();
     const token = await getToken();
     // Call your backend API to process the payment here
-    fetch(`${EXPO_PUBLIC_BE_URL}:${EXPO_PUBLIC_BE_PORT}/deposit`, {
+    fetch(`${EXPO_PUBLIC_BE_URL}:${EXPO_PUBLIC_BE_PORT}/withdraw`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -45,13 +47,22 @@ const DepositScreen = () => {
     .then(data => {
         updateBalance();
 
-        addTransaction({transactionID, amount, status: 'success', type: 'deposit'});
+        let message = ""
+        console.log(data)
+        if (data.status === 'success') {
+          addTransaction({transactionID, amount, status: 'success', type: 'withdraw'});
+          message = `${data.message}
+          \nYour have withdrawn $${amount} from your Digital Wallet
+          \nNow you will be redirected to the home screen ...`
+        } else
+        {
+          message = `${data.message}`
+        }
+        
 
         Alert.alert(
           'Confirmation',
-          `${data.message}
-          \nYour have deposited $${amount} to your Digital Wallet
-          \nNow you will be redirected to the home screen ...`,
+          `${message}`,
           [
             {
               text: 'Cancel',
@@ -68,12 +79,11 @@ const DepositScreen = () => {
     })
     .catch(error => {
         console.error('Error:', error);
-
-        addTransaction({transactionID, amount, status: 'failed', type: 'deposit'});
-
+        addTransaction({transactionID, amount, status: 'failed', type: 'withdraw'});
+        const errorMessage = error.message ? error.message : 'Something went wrong. Please try again.';
         Alert.alert(
           'Confirmation',
-          'Something went wrong',
+          `${errorMessage}`,
           [
             {
               text: 'Cancel',
@@ -93,25 +103,26 @@ const DepositScreen = () => {
   return (
     <View style={styles.container}>
       <Image source={require('../assets/e-wallet.png')} style={styles.logo} />
-      <Text style={styles.mainText}>Deposit Money to your Digital Wallet</Text>
+      <Text style={styles.mainText}>Withdraw Money from your Digital Wallet</Text>
       <View style={styles.textContainer}>
       
-        <Text style={styles.headerText}>Feel free to deposit any amount to your Digital Wallet</Text>
+        <Text style={styles.headerText}>Feel free to withdraw any amount from your Digital Wallet</Text>
         <View style={styles.writeContainer}>
           <Text style={styles.title}>Amount $</Text>
           <View style={styles.inputContainer}>          
             <Text style={{fontSize: 16, fontWeight: 'bold'}}>$</Text>
-              <TextInput
-                style={styles.input}
-                placeholder='0.00'
-                value={amount}
-                onChangeText={setAmount}
-                keyboardType="numeric"
-              />
+
+            <TextInput
+              style={styles.input}
+              placeholder="0.00"
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="numeric"
+            />
           </View>
         </View>
       </View>
-      <Button style={{marginTop: 20}} title="Confirm" onPress={handleConfirmDeposit} />
+      <Button style={{marginTop: 20}} title="Confirm" onPress={handleConfirmWithdraw} />
     </View>
   );
 };
@@ -122,7 +133,7 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       margin: 50,
-      marginBottom: 200,
+      marginBottom: 200
   },
   textContainer: {
     padding: 20,
@@ -177,4 +188,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DepositScreen;
+export default WithdrawScreen;

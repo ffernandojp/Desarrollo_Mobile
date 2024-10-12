@@ -4,13 +4,14 @@ import { useNavigation } from '@react-navigation/native'; // Import useNavigatio
 import { EXPO_PUBLIC_BE_URL, EXPO_PUBLIC_BE_PORT } from '@env';
 import { useSession } from '../context/SessionContext';
 import { useTransactions } from '../context/TransactionsContext';
+import generateRandomId from '../hooks/generateRandomID';
 
 
 const QRGeneratorScreen = () => {
     const navigation = useNavigation(); // Access navigation prop
     const [text, onChangeText] = React.useState('');
     const [amount, onChangeAmount] = React.useState(0);
-    const [transactionID, setTransactionID] = React.useState(0)
+    const [transactionID, setTransactionID] = React.useState(0.00)
     // const [amount, onChangeAmount] = React.useState('')
 
     const { getToken } = useSession();
@@ -45,7 +46,7 @@ const QRGeneratorScreen = () => {
       // console.log('Response:', response.url);
       return response.json();
         }).then(data => {
-          addTransaction({transactionID, amount, status: 'pending' });
+          addTransaction({transactionID, amount, status: 'pending', type: 'transfer' });
           const qrCodeUrl = data.qrCode;
           Alert.alert(
             'Confirmation',
@@ -67,7 +68,7 @@ const QRGeneratorScreen = () => {
           )  
         })
     .catch(error => {
-          addTransaction({transactionID, amount, status: 'failed' });
+          addTransaction({transactionID, amount, status: 'failed', type: 'transfer' });
           console.error('Error:', error);
           Alert.alert('Error', 'Failed to generate QR code: ' + error.message);
         });
@@ -78,31 +79,32 @@ const QRGeneratorScreen = () => {
         setTransactionID(id);
     }, [])
 
-    function generateRandomId() {
-        const min = 1000000000; // Minimum 10-digit number
-        const max = 9999999999; // Maximum 10-digit number
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
       
     return (
       <View style={{ padding: 20 }}>
         <Text style={styles.mainText}>QR Generator</Text>
     <SafeAreaView style={styles.safearea}>
     <Text  style = {styles.headerText}>Transaction ID</Text>
+    <View style={styles.inputContainer}>
+      <Text style={{fontSize: 16, fontWeight: 'bold'}}>ID</Text>
       <TextInput
         style={styles.input}
         onChangeText={onChangeText}
         value={`${transactionID}`}
         editable={false}
       />
-        <Text  style = {styles.headerText}>Amount $</Text>
+    </View>
+      <Text  style = {styles.headerText}>Amount $</Text>
+      <View style={styles.inputContainer}>
+      <Text style={{fontSize: 16, fontWeight: 'bold'}}>$</Text>
       <TextInput
         style={styles.input}
         onChangeText={onChangeAmount}
-        value={amount}
+        value={parseFloat(amount)}
         keyboardType="numeric"
+        placeholder='0.00'
       />
+    </View>
       
     </SafeAreaView>
         <Button title="Generate QR" style={styles.button} onPress={handleGenerateQR} />
@@ -138,6 +140,7 @@ const styles = StyleSheet.create({
     margin: 12,
     borderWidth: 1,
     padding: 10,
+    width: '95%',
   },
   headerText: {
     fontSize: 16,
@@ -155,6 +158,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 30
   },
+  inputContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 });
 
 export default QRGeneratorScreen;

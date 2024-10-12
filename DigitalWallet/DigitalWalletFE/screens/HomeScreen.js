@@ -17,9 +17,9 @@ const HomeScreen = ({ navigation }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Image source={require('../assets/e-wallet.png')} style={styles.logo} />
-      <Text style={styles.title}>Welcome again to Digital Wallet</Text>
+      {/* <Text style={styles.title}>Welcome again to Digital Wallet</Text> */}
       <View style={styles.userContainer}>
-        <Text style={styles.titleUser}>Hi {user}</Text>
+        <Text style={styles.title}>Hi {user}</Text>
         <Text style={styles.subtitleUser}>What would you like to do today?</Text>
       </View>
       <View style={styles.balanceContainer}>
@@ -27,47 +27,28 @@ const HomeScreen = ({ navigation }) => {
         <Text style={styles.balanceContainer.balance}>${balance.toFixed(2)}</Text>
       </View>
       <View style={styles.depositContainer}>
-        <Text style={styles.subtitle}>Deposit into your wallet using the following button:</Text>
+        <Text style={styles.subtitle}>See your transactions using the following button:</Text>
         <Button title="Transactions" color={'#47b242'} onPress={() => navigation.navigate('Transactions')} />
       </View>
       <View style={styles.depositContainer}>
         <Text style={styles.subtitle}>Deposit into your wallet using the following button:</Text>
         <Button title="Deposit" color={'#D6A600'} onPress={() => navigation.navigate('Deposit')} />
       </View>
+      <View style={styles.withdrawContainer}>
+        <Text style={styles.subtitle}>Witdraw from your wallet using the following button:</Text>
+        <Button title="Withdraw" color={'#522ab6'} onPress={() => navigation.navigate('Withdraw')} />
+      </View>
+
       <View style={styles.qrContainer}>
         <Text style={styles.subtitle}>Scan QR Code or generate one:</Text>
         <Button title="Scan QR Code" onPress={() => navigation.navigate('QRScanner')} />
         <Button title="Generate QR Code" color={'grey'} onPress={() => navigation.navigate('GenerateQR')} />
       </View>
-      {/* <View style={styles.depositContainer}>
-        <Text style={styles.subtitle}>Deposit into your wallet using the following button:</Text>
-      </View> */}
-      
-      {/* <View style={styles.buttons}>
-      <Button title="Deposit" color={'#D6A600'} onPress={() => navigation.navigate('Deposit')} />
-
-      <Button
-        title="Scan QR Code"
-        onPress={() => navigation.navigate('QRScanner')}
-      />
-      
-      <Button
-        color={'grey'}
-        title="Generate QR Code"
-        onPress={() => navigation.navigate('GenerateQR')}
-      />
-      </View> */}
-      {/* <View style={styles.buttonLogoutContainer}>
-
-        <Button title="Logout" color={'red'} onPress={() => navigation.navigate('Login')} />
-      </View> */}
-      
-      {/* Example: 
-      <Button
-        title="View Transactions"
-        onPress={() => navigation.navigate('Transactions')}
-      />
-      */}
+        
+        {/* Footer Section */}
+        <View style={styles.footer}>
+        <Text style={styles.footerText}>Developed by Fernando Pérez</Text>
+      </View>
     </ScrollView>
   );
 };
@@ -78,13 +59,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    paddingBottom: 50,
     backgroundColor: '#f8f9fa',
   },
   userContainer: {
     padding: 5,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
+    marginBottom: 30,
   },
   balanceContainer: {
     padding: 5,
@@ -108,16 +90,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  titleUser: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    marginTop: 12
+    marginBottom: 2,
   },
   subtitleUser: {
-    fontSize: 16,
+    fontSize: 20,
     marginBottom: 8,
     fontWeight: 'bold',
   },
@@ -141,17 +117,34 @@ const styles = StyleSheet.create({
   depositContainer: {
     marginVertical: 15
   },
+  withdrawContainer: {
+    marginVertical: 15
+  },
   qrContainer: {
     width: '100%',
     justifyContent: 'space-around',
     height: '20%',
-    
     marginVertical: 15,
-    
+    marginBottom: 35
   },
-  // buttonLogoutContainer: {
-  //   marginTop: 25
-  // },
+   // Footer styles
+  footer: {
+    paddingVertical: 10,
+    marginTop: 50,
+    fontStyle: 'italic',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f1f1f1', // Light background for contrast
+    width: '100%',
+    position: 'absolute', 
+    bottom: 0 
+  },
+  footerText:{
+    fontSize: 14,
+    color: '#333',
+    fontStyle: 'italic',
+    fontWeight: 'semibold'
+  }
 });
 
 export default HomeScreen;

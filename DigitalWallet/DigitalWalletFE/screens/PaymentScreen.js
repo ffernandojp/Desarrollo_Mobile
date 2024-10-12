@@ -33,14 +33,23 @@ const PaymentScreen = ({ route }) => {
     })
     .then(data => {
         updateBalance();
+        
+        let message = ""
 
-        addTransaction({transactionID, amount, status: 'success', id: id });
+        if (data.status === 'success') {
+          addTransaction({transactionID, amount, status: 'success', type: 'transfer', id: id });
+          
+          message = `${data.message}
+          \nTransaction ID: ${transactionID}
+          \nNow you will be redirected to the home screen ...`
+        } else {
+          message = `${data.message} 
+          \nNow you will be redirected to the home screen ...`
+        }
 
         Alert.alert(
           'Confirmation',
-          `${data.message}
-          \nTransaction ID: ${transactionID}
-          \nNow you will be redirected to the home screen ...`,
+          `${message}`,
           [
             {
               text: 'Cancel',
@@ -57,7 +66,7 @@ const PaymentScreen = ({ route }) => {
     })
     .catch(error => {
         console.error('Error:', error);
-        addTransaction({transactionID, amount, status: 'failed' });
+        addTransaction({transactionID, amount, status: 'failed', type: 'transfer', id: id });
         Alert.alert(
           'Error',
           'Failed to process payment. Please try again later.',

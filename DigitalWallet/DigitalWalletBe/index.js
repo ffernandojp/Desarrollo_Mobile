@@ -31,47 +31,47 @@ app.use((req, res, next) => {
   // Find the user in the database
   const users = [
     // Existing users...
-    { id: 1, name: 'Fernando Pérez', email: 'fernandojp@example.com', password: '$2b$10$/v7gNVaj2acOTU3zaFuJXe5Re3JpUZUrGmqDNKsrznQsc/d36.uce', balance: 800000 },
-    { id: 2, name: 'User Admin', email: 'user@admin.com', password: '$2b$10$tbYNk0o5xIawARC1tGUO6uy7K6Y1B1vvGvlPJIK0xwr1H.JE5qlOG', balance: 180000 } // Admin123
+    { id: 0, name: 'Fernando Pérez', email: 'fernandojp@example.com', password: '$2b$10$/v7gNVaj2acOTU3zaFuJXe5Re3JpUZUrGmqDNKsrznQsc/d36.uce', balance: 800000 },
+    { id: 1, name: 'User Admin', email: 'user@admin.com', password: '$2b$10$tbYNk0o5xIawARC1tGUO6uy7K6Y1B1vvGvlPJIK0xwr1H.JE5qlOG', balance: 180000 } // Admin123
   ];
 
 // Array of transactions
 const transactions = [
     {
-    id: 1,
+    id: 0,
     amount: 1000,
     transactionID: 123456789,
     date: '2022-01-01',
     status: 'success',
     type: 'deposit',
-    user_id: 1
+    user_id: 0
   },
   {
-    id: 2,
+    id: 1,
     amount: 500,
     transactionID: 987654321,
     date: '2022-01-02',
     status: 'pending',
-    type: 'withdrawal',
-    user_id: 2
+    type: 'withdraw',
+    user_id: 1
   },
   {
-    id: 3,
+    id: 2,
     amount: 2000,
     transactionID: 456789123,
     date: '2022-01-03',
     status: 'failed',
     type: 'deposit',
-    user_id: 2
+    user_id: 1
   },
   {
-    id: 4,
+    id: 3,
     amount: 1500,
     transactionID: 789123456,
     date: '2022-01-04',
     status: 'success',
-    type: 'withdrawal',
-    user_id: 2
+    type: 'withdraw',
+    user_id: 1
   }
 ];
 
@@ -89,19 +89,31 @@ app.post("/add-transaction", authenticateToken, (req, res) => {
     const index = transactions.findIndex(t => t.id === id);
     if (index !== -1) {
       transactions[index] = { id, amount, transactionID, status, type, user_id: req.user.id, date: formattedDate };
-      res.send({message: "Transaction updated successfully", transactions});
+      res.send({message: "Transaction updated successfully", transactions, status: "success"});
     } else {
-      res.status(404).send("Transaction not found");
+      res.status(404).json({message: "Transaction not found", status: "failed"});
     }
   } else {
     transactions.push({ id: transactions.length + 1, amount, transactionID, status, type, user_id: req.user.id, date: formattedDate });
-    res.send({message: "Transaction updated successfully", transactions});
+    res.json({message: "Transaction updated successfully", transactions, status: "success"});
   }
+  
 })
 
 app.get("/get-transactions", authenticateToken, (req, res) => {
-  const userTransactions = transactions.filter(t => t.user_id === req.user.id);
-  res.send({transactions: userTransactions})
+  const type = req.query.type;
+
+  if (type && type !== 'all') {
+    const userTransactions = transactions.filter(t => t.user_id === req.user.id && t.type === type).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (userTransactions.length === 0) {
+      return res.status(400).json({message: "No transactions found", status: "failed"});
+    }
+
+    res.json({transactions: userTransactions, status: "success"})
+  } else {
+    res.json({transactions: transactions.filter(t => t.user_id === req.user.id).sort((a, b) => new Date(b.date) - new Date(a.date)), status: "success"})
+  }
 })
 
 app.get("/", authenticateToken, (req, res) => {
@@ -172,9 +184,9 @@ app.post('/register', async (req, res) => {
     // Generate a salt and hash the password
     const saltRounds = 10; // You can adjust the cost factor
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-
+    console.log("users length: " + users.length)
     // Here you would typically save the username and hashedPassword to your database
-    users.push({ id: users.length + 1, name, email, password: hashedPassword });
+    users.push({ id: users.length + 1, name, email, password: hashedPassword, balance: 0.00 });
 
     res.status(201).json({ success: true });
   
@@ -201,6 +213,23 @@ app.post("/deposit", authenticateToken, (req, res) => {
   const user = users.find(u => u.email === req.user.email);
   user.balance = user.balance ? user.balance + parseFloat(amount) : parseFloat(amount);
   res.send({ message: 'Deposit successful' })
+})
+
+app.post("/withdraw", authenticateToken, (req, res) => {
+  const { amount } = req.body;
+  if (!amount) return res.status(500).json({message: 'You need to send all keys', status: "failed"})
+  const user = users.find(u => u.email === req.user.email);
+
+  if (!user) {
+    return res.status(400).json({message: 'User not found', status: "failed"})
+  }
+
+  if (amount > user.balance) {
+    return res.status(400).json({message: 'Insufficient funds in your account', status: "failed"})
+  }
+  
+  user.balance = user.balance ?  user.balance - parseFloat(amount) : parseFloat(amount);
+  res.json({ message: 'Withdrawal successful', status: "success" })
 })
 
 
@@ -245,22 +274,37 @@ app.post('/process-payment', authenticateToken, (req, res) => {
     const { amount, transactionID } = req.body;
     console.log(`Payment received for amount: ${amount}, transaction ID: ${transactionID}`);
 
-    let balance = users.find(u => u.email === req.user.email).balance;
+    const user = users.find(u => u.email === req.user.email);
+    console.log(user)
+
+    if (!user) {
+      return res.status(400).json({ message: 'User not found', status: "failed" });
+    }
+    // Find the user's current balance in the database
+    let balance = user.balance;
+
+    if (amount <= 0) {
+      return res.status(400).json({ message: 'Invalid amount', status: "failed" });
+    }
 
     // Process the payment
     if (amount > balance) {
-      return res.status(400).json({ message: 'Insufficient funds in your account to process the payment' });
+      return res.status(400).json({ message: 'Insufficient funds in your account to process the payment', status: "failed" });
     }
 
-    balance -= amount;
-
     // Update the balance in the database
-    users.find(u => u.email === req.user.email).balance = balance;
+    if (balance - amount === 0) {
+      user.balance = 0.00;
+    } else {
+      user.balance -= amount;
+    }
+
+    
 
     // Replace this with my own database implementation
 
     // For demonstration purposes, let's assume the payment processing is successful
-    res.status(200).json({ message: 'Payment processed successfully' });
+    res.status(200).json({ message: 'Payment processed successfully', status: "success" });
 })
 
 

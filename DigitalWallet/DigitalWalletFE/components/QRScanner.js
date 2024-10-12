@@ -3,10 +3,12 @@ import { CameraType } from 'expo-camera/legacy';
 import { useState } from 'react';
 import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { useTransactions } from '../context/TransactionsContext';
 
 
 export default function QRScanner() {
   const navigation = useNavigation(); // Access navigation prop
+  const { addTransaction } = useTransactions();
 
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
@@ -47,7 +49,7 @@ export default function QRScanner() {
           },
           {
             text: 'OK',
-            onPress: () => {navigation.navigate('Payment', { amount, transactionID });},
+            onPress: () => {addTransaction({transactionID, amount, status: 'pending', type: 'transfer'}); navigation.navigate('Payment', { amount, transactionID });},
           },
         ],
         { cancelable: false } // Optional: Prevents dismissing by tapping outside

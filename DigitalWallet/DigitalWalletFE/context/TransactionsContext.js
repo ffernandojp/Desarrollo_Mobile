@@ -25,7 +25,7 @@ export const TransactionsProvider = ({ children }) => {
     };
 
     const addTransaction = async (params = {}) => {
-      const { amount, transactionID, status, id } = params;
+      const { amount, transactionID, status, type, id } = params;
       const token = await getToken();
       fetch(`${EXPO_PUBLIC_BE_URL}:${EXPO_PUBLIC_BE_PORT}/add-transaction`, {
         method: 'POST',
@@ -33,11 +33,10 @@ export const TransactionsProvider = ({ children }) => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ amount: amount, transactionID: transactionID, status: status, type: 'transfer', id: id }),
+        body: JSON.stringify({ amount: amount, transactionID: transactionID, status: status, type: type, id: id }),
       })
       .then(response => response.json())
       .then(data => {
-        console.log(data);
         if (data.transactions) setTransactions(data.transactions);
       })
     };

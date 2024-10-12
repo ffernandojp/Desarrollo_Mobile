@@ -14,6 +14,7 @@ import RegisterScreen from './screens/RegisterScreen';
 import DepositScreen from './screens/DepositScreen';
 import TransactionsScreen from './screens/TransactionsScreen';
 import { TransactionsProvider } from './context/TransactionsContext';
+import WithdrawScreen from './screens/WithdrawScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +34,7 @@ export default function App() {
             <Stack.Screen name="QRCodeDisplay" component={QRCodeDisplayScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
             <Stack.Screen name="Deposit" component={DepositScreen} />
+            <Stack.Screen name="Withdraw" component={WithdrawScreen} />
             <Stack.Screen name="Transactions" component={TransactionsScreen} />
           </Stack.Navigator>
         </NavigationContainer>
