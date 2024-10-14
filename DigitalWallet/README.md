@@ -1,7 +1,7 @@
 # Digital Wallet App
 
 ## Overview
-Welcome to the Digital Wallet application! This platform allows users to securely manage their digital transactions. You can deposit funds, withdraw money, scan QR codes, generate QR codes, and view your transaction history.
+This simulated digital wallet app allows users to securely manage their digital transactions. You can deposit funds, withdraw money, scan QR codes, generate QR codes, and view your transaction history.
 
 ## Features
 - **Deposit Funds:** Easily add money to your wallet.
@@ -14,15 +14,16 @@ Welcome to the Digital Wallet application! This platform allows users to securel
 You can log in using the following credentials:
 - Email: user@admin.com
 - Password: Admin123
+
 Alternatively, you can register a new account. All passwords are securely hashed and will remain valid until the server is shut down.
 
 ## Setup Instructions
 ### Configuration
 To establish a connection between the frontend and backend, you need to modify the .env files in both the backend and frontend directories. Follow these steps:
-- Locate the .env Files:
+- **Locate the .env Files:**
   - In the backend folder.
   - In the frontend folder.
-- Edit the Files: 
+- **Edit the Files:** 
   - Replace the placeholder IP address with your private machine's IP address.
 
 ## Running the Server
