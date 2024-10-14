@@ -9,14 +9,13 @@ const QRScannerScreen = ({ navigation }) => {
   // console.log("Facing", CameraType)
   // const [facing, setFacing] = useState(CameraType.back);
 
-
+  const requestCameraPermissions = async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    setHasPermission(status === "granted");
+  };
 
   // Request camera permission
   useEffect(() => {
-    const requestCameraPermissions = async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
-    };
 
     requestCameraPermissions();
   }, []);
@@ -30,7 +29,7 @@ const QRScannerScreen = ({ navigation }) => {
     return (
       <View style={styles.container}>
         <Text>No access to camera</Text>
-        <Button title="Grant Permission" onPress={requestCameraPermission} />
+        <Button title="Grant Permission" onPress={requestCameraPermissions} />
       </View>
     );
   }
